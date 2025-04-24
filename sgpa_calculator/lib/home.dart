@@ -8,6 +8,7 @@ class HomePage extends StatefulWidget {
 }
 List<String> grades = ["O","A+","A","B+","B","C"];
 List<int> credits = [4,3,2,1];
+List<double> history = [];
 class _HomePageState extends State<HomePage> {
   Map<String,int> map = {"O":10,"A+":9,"A":8,"B+":7,"B":6,"C":5};
   List<Map<String, int>> subjects = [];
@@ -32,8 +33,28 @@ class _HomePageState extends State<HomePage> {
           centerTitle: true,
           titleSpacing: 2,
           title: Text("SGPA CALCULATOR",style: TextStyle(color: Colors.white)),
-          leading: Container(
-            child: Image.asset("assets/College Logo.png"),
+          // leading : Container(
+          //     child: Image.asset("assets/College Logo.png"),
+          //   ),
+        ),
+        drawer: Drawer(
+          backgroundColor: Colors.blue[200],
+          child: ListView.builder(
+            itemCount: history.length,
+            itemBuilder: (context, index){
+              return ListTile(
+                trailing: IconButton(
+                  onPressed: (){
+                    setState(() {
+                      history.removeAt(index);
+                    });
+                  },
+                  icon: Icon(Icons.delete),
+                ),
+                title: Text("Discrete Mathematicshfalksdhflkashdflkasjhdflkahsdflkjh",maxLines:2 ,overflow: TextOverflow.ellipsis,),
+                subtitle:Text(history[index].toStringAsFixed(2)),
+              );
+            },
           ),
         ),
         body: Padding(
@@ -41,11 +62,38 @@ class _HomePageState extends State<HomePage> {
           child: Column(
             children: [
               SizedBox(
-                height: 10,
+                height: 1,
+              ),
+              Text("Enter Subject Name :",style: TextStyle(fontSize: 20,color: Colors.white70),),
+              SizedBox(
+                height: 5,
+              ),
+              Padding(
+                padding: EdgeInsets.only(bottom: 30),
+                child: TextField(
+                  cursorColor: Colors.blue,
+                  style: TextStyle(color: Colors.white),
+                  decoration: InputDecoration(
+                    hintText: "eg : Discrete Mathematics",
+                    hintStyle: TextStyle(color: Colors.white38),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(
+                        width: 2,
+                        color: Colors.blue
+                      )
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(
+                        width: 2,
+                        color: Colors.blue
+                      )
+                    ),
+                  ),
+                ),
               ),
               Text("Select Subject Grade :",style: TextStyle(fontSize: 20,color: Colors.white70),),
               SizedBox(
-                height: 2,
+                height: 1,
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -59,11 +107,11 @@ class _HomePageState extends State<HomePage> {
                 ],
               ),
               SizedBox(
-                height: 10,
+                height: 1,
               ),
               Text("Select Subject Credit :",style: TextStyle(fontSize: 20,color: Colors.white70),),
               SizedBox(
-                height: 2,
+                height: 1,
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -75,11 +123,11 @@ class _HomePageState extends State<HomePage> {
                 ],
               ),
               SizedBox(
-                height: 10,
+                height: 5,
               ),
               button("Calculate", height, width),
               SizedBox(
-                height: height*0.08,
+                height: height*0.06,
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -89,7 +137,7 @@ class _HomePageState extends State<HomePage> {
                 ]
               ),
               SizedBox(
-                height: (height/4)-100,
+                height: (height/6)-100,
               ),
               resetButton("Reset", height, width)
             ],
@@ -191,6 +239,7 @@ class _HomePageState extends State<HomePage> {
       onTap: () {
         setState(() {
           subjects.clear();
+          history.clear();
           sgpa = 0;
           selectedGrade = "";
           selectedCredit = "";
@@ -247,6 +296,7 @@ class _HomePageState extends State<HomePage> {
             }
 
             sgpa = totalPoints / totalCredits;
+            history.add(sgpa);
 
             // Reset selections
             selectedGrade = "";
