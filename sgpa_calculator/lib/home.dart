@@ -18,171 +18,223 @@ class _HomePageState extends State<HomePage> {
   List<Map<String, int>> subjects = [];
   int creditVal = 0;
   int gradeVal = 0;
+  int total_points = 0;
+  int total_credits = 10;
   double sgpa = 0;
-  String selectedGrade = "";
-  String selectedCredit = "";
-
+  String name = "";
+  
   @override
   Widget build(BuildContext context) {
     double height = MediaQuery.of(context).size.height;
     double width = MediaQuery.of(context).size.width;
-
-    return Scaffold(
-      backgroundColor: Colors.black12,
-      appBar: AppBar(
-        leading: Padding(
-          padding: EdgeInsets.all(width * 0.015),
-          child: Image.asset("assets/College Logo.png"),
-        ),
-        backgroundColor: Colors.blue,
-        centerTitle: true,
-        titleSpacing: 2,
-        title: Text(
-          "SGPA CALCULATOR",
-          style: TextStyle(color: Colors.white, fontSize: width * 0.045),
-        ),
+    
+    // Dynamic padding and font size
+    double buttonFontSize = height * 0.025;
+    
+    return Theme(
+      data: ThemeData(
+        splashColor: Colors.transparent,
+        highlightColor: Colors.transparent,
       ),
-      endDrawer: Drawer(
-        backgroundColor: Colors.blue,
-        child: SafeArea(
-          child: ListView(
-            children: [
-              DrawerHeader(
-                decoration: BoxDecoration(color: Colors.blue),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.history, size: width * 0.15, color: Colors.white60),
-                    SizedBox(height: height * 0.01),
-                    Text(
-                      "History",
-                      style: TextStyle(color: Colors.white60, fontSize: width * 0.07),
+      child: Scaffold(
+        backgroundColor: Colors.black12,
+        appBar: AppBar(
+          leading: Image.asset("assets/College Logo.png",),
+          backgroundColor: Colors.blue,
+          centerTitle: true,
+          titleSpacing: 2,
+          title: Text("SGPA CALCULATOR", style: TextStyle(color: Colors.white, fontSize: buttonFontSize)),
+        ),
+        endDrawer: Drawer(
+          backgroundColor: Colors.blue,
+          child: SafeArea(
+            child: ListView(
+              children: [
+                DrawerHeader(
+                  decoration: BoxDecoration(color: Colors.blue),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.history, size: 60, color: Colors.white60),
+                      SizedBox(height: 6),
+                      Text(
+                        "History",
+                        style: TextStyle(color: Colors.white60, fontSize: 30),
+                      ),
+                    ],
+                  ),
+                ),
+                ...List.generate(historypoints.length, (index) {
+                  return Padding(
+                    padding: EdgeInsets.all(8),
+                    child: ListTile(
+                      tileColor: Colors.blue[200],
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      trailing: IconButton(
+                        onPressed: () {
+                          setState(() {
+                            subjects.removeAt(index);
+                            historysub.removeAt(index);
+                            historypoints.removeAt(index);
+                            reCalculateSgpa();
+                          });
+                        },
+                        icon: Icon(
+                          Icons.delete,
+                          color: Color.fromARGB(255, 191, 28, 16),
+                        ),
+                      ),
+                      title: Row(
+                        children: [
+                          Text("${index + 1}) "),
+                          SizedBox(width: 2,),
+                          Expanded(
+                            child: Text(
+                              historysub[index],
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(color: Colors.black54,fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                        ],
+                      ),
+                      subtitle: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Icon(Icons.star_rate_outlined,color: const Color.fromARGB(255, 2, 169, 152)),
+                          SizedBox(width: 4),
+                          Text(historypoints[index].toStringAsFixed(2),
+                          style: TextStyle(color: Colors.black38,fontSize: 13,fontWeight: FontWeight.bold),
+                          ),
+                        ]
+                      ),
                     ),
+                  );
+                }),
+              ],
+            ),
+          ),
+        ),
+
+        body: Padding(
+          padding: EdgeInsets.all(15.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              SizedBox(height: 10),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  "Enter Subject Name :",
+                  style: TextStyle(fontSize: buttonFontSize, color: Colors.white70),
+                ),
+              ),
+              SizedBox(height: 6),
+              Padding(
+                padding: EdgeInsets.only(bottom: 30),
+                child: TextField(
+                  controller: _controller,
+                  cursorColor: Colors.blue,
+                  style: TextStyle(color: Colors.white),
+                  decoration: InputDecoration(
+                    filled: true,
+                    fillColor: Colors.white24,
+                    hintText: "eg : Discrete Mathematics",
+                    hintStyle: TextStyle(color: Colors.white38),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(width: 2, color: Colors.blue),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(width: 2, color: Colors.blue),
+                    ),
+                  ),
+                ),
+              ),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  "Select Subject Grade :",
+                  style: TextStyle(fontSize: buttonFontSize, color: Colors.white70),
+                ),
+              ),
+              SizedBox(height: 1),
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: [
+                    gradeButton("O", height, width),
+                    gradeButton("A+", height, width),
+                    gradeButton("A", height, width),
+                    gradeButton("B+", height, width),
+                    gradeButton("B", height, width),
+                    gradeButton("C", height, width),
                   ],
                 ),
               ),
-              ...List.generate(historypoints.length, (index) {
-                return Padding(
-                  padding: EdgeInsets.all(width * 0.02),
-                  child: ListTile(
-                    tileColor: Colors.blue[200],
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    trailing: IconButton(
-                      onPressed: () {
-                        setState(() {
-                          subjects.removeAt(index);
-                          historysub.removeAt(index);
-                          historypoints.removeAt(index);
-                          reCalculateSgpa();
-                        });
-                      },
-                      icon: Icon(Icons.delete, color: Color.fromARGB(255, 191, 28, 16)),
-                    ),
-                    title: Row(
-                      children: [
-                        Text("${index + 1}) "),
-                        SizedBox(width: width * 0.01),
-                        Expanded(
-                          child: Text(
-                            historysub[index],
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(color: Colors.black54, fontSize: width * 0.04),
-                          ),
-                        ),
-                      ],
-                    ),
-                    subtitle: Text(
-                      historypoints[index].toStringAsFixed(2),
-                      style: TextStyle(color: Colors.teal, fontSize: width * 0.04),
+              SizedBox(height: 10),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  "Select Subject Credit :",
+                  style: TextStyle(fontSize: buttonFontSize, color: Colors.white70),
+                ),
+              ),
+              SizedBox(height: 1),
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: [
+                    creditButton("4", height, width),
+                    creditButton("3", height, width),
+                    creditButton("2", height, width),
+                    creditButton("1", height, width),
+                  ],
+                ),
+              ),
+              SizedBox(height: 15),
+              Align(
+                alignment: Alignment.center,
+                child: button("Calculate", height, width, buttonFontSize),
+              ),
+              SizedBox(height: height * 0.06),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    "SGPA : ",
+                    style: TextStyle(
+                      color: Colors.deepOrangeAccent,
+                      fontSize: buttonFontSize,
                     ),
                   ),
-                );
-              }),
+                  Text(
+                    sgpa.toStringAsFixed(2),
+                    style: TextStyle(
+                      color: Colors.deepOrangeAccent,
+                      fontSize: buttonFontSize,
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: (height / 6) - 100),
+              Align(
+                alignment: Alignment.center,
+                child: resetButton("Reset", height, width, buttonFontSize),
+              ),
             ],
           ),
         ),
       ),
-      body: SingleChildScrollView(
-        padding: EdgeInsets.all(width * 0.04),
-        child: Column(
-          children: [
-            SizedBox(height: height * 0.01),
-            buildText("Enter Subject Name :", width),
-            SizedBox(height: height * 0.01),
-            Padding(
-              padding: EdgeInsets.only(bottom: height * 0.03),
-              child: TextField(
-                controller: _controller,
-                cursorColor: Colors.blue,
-                style: TextStyle(color: Colors.white, fontSize: width * 0.04),
-                decoration: InputDecoration(
-                  hintText: "eg : Discrete Mathematics",
-                  hintStyle: TextStyle(color: Colors.white38, fontSize: width * 0.035),
-                  enabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide(width: 2, color: Colors.blue),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(width: 2, color: Colors.blue),
-                  ),
-                ),
-              ),
-            ),
-            buildText("Select Subject Grade :", width),
-            SizedBox(height: height * 0.01),
-            Wrap(
-              alignment: WrapAlignment.center,
-              spacing: width * 0.02,
-              children: grades.map((grade) => gradeButton(grade, height, width)).toList(),
-            ),
-            SizedBox(height: height * 0.02),
-            buildText("Select Subject Credit :", width),
-            SizedBox(height: height * 0.01),
-            Wrap(
-              alignment: WrapAlignment.center,
-              spacing: width * 0.02,
-              children: credits.map((credit) => creditButton(credit.toString(), height, width)).toList(),
-            ),
-            SizedBox(height: height * 0.03),
-            button("Calculate", height, width),
-            SizedBox(height: height * 0.04),
-            buildSGPAResult(width),
-            SizedBox(height: height * 0.05),
-            resetButton("Reset", height, width),
-          ],
-        ),
-      ),
     );
   }
 
-  Widget buildText(String text, double width) {
-    return Text(
-      text,
-      style: TextStyle(fontSize: width * 0.05, color: Colors.white70),
-      textAlign: TextAlign.center,
-    );
-  }
-
-  Widget buildSGPAResult(double width) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Text(
-          "SGPA : ",
-          style: TextStyle(color: Colors.deepOrangeAccent, fontSize: width * 0.07),
-        ),
-        Text(
-          sgpa.toStringAsFixed(2),
-          style: TextStyle(color: Colors.deepOrangeAccent, fontSize: width * 0.07),
-        ),
-      ],
-    );
-  }
-
+  // Grade Button Widget
+  String selectedGrade = "";
   Widget gradeButton(String grade, double height, double width) {
-    bool isSelected = selectedGrade == grade;
+    bool isSelectedgrade = selectedGrade == grade;
     return InkWell(
       onTap: () {
         setState(() {
@@ -190,24 +242,29 @@ class _HomePageState extends State<HomePage> {
           gradeVal = map[grade]!;
         });
       },
-      child: Container(
-        alignment: Alignment.center,
-        height: height * 0.08,
-        width: width * 0.16,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: isSelected ? Colors.deepOrangeAccent : Colors.blue,
-        ),
-        child: Text(
-          grade,
-          style: TextStyle(color: Colors.white, fontSize: width * 0.045),
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Container(
+          alignment: Alignment.center,
+          height: height * 0.12,
+          width: width * 0.12,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: isSelectedgrade ? Colors.deepOrangeAccent : Colors.blue,
+          ),
+          child: Text(
+            grade,
+            style: TextStyle(color: Colors.white, fontSize: width * 0.030),
+          ),
         ),
       ),
     );
   }
 
+  //Credit Button Widget
+  String selectedCredit = "";
   Widget creditButton(String credit, double height, double width) {
-    bool isSelected = selectedCredit == credit;
+    bool isSelectedcredit = selectedCredit == credit;
     return InkWell(
       onTap: () {
         setState(() {
@@ -215,51 +272,57 @@ class _HomePageState extends State<HomePage> {
           creditVal = int.parse(credit);
         });
       },
-      child: Container(
-        alignment: Alignment.center,
-        height: height * 0.08,
-        width: width * 0.16,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: isSelected ? Colors.deepOrangeAccent : Colors.blue,
-        ),
-        child: Text(
-          credit,
-          style: TextStyle(color: Colors.white, fontSize: width * 0.045),
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Container(
+          alignment: Alignment.center,
+          height: height * 0.12,
+          width: width * 0.12,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: isSelectedcredit ? Colors.deepOrangeAccent : Colors.blue,
+          ),
+          child: Text(
+            credit,
+            style: TextStyle(color: Colors.white, fontSize: width * 0.030),
+          ),
         ),
       ),
     );
   }
 
-  Widget button(String name, double height, double width) {
+  //Calculate Button
+  Widget button(String name, double height, double width, double fontSize) {
     return InkWell(
       onTap: () {
         setState(() {
           calculateSgpa();
         });
       },
+
       child: Container(
         alignment: Alignment.center,
-        height: height * 0.06,
-        width: width * 0.4,
+        height: height * 0.05,
+        width: width * 0.30,
         decoration: BoxDecoration(
           color: Colors.lightGreen,
           borderRadius: BorderRadius.circular(15),
         ),
         child: Text(
           name,
-          style: TextStyle(color: Colors.white, fontSize: width * 0.045),
+          style: TextStyle(color: Colors.white, fontSize: fontSize),
         ),
       ),
     );
   }
 
-  Widget resetButton(String name, double height, double width) {
+  Widget resetButton(String name, double height, double width, double fontSize) {
     return InkWell(
       onTap: () {
         setState(() {
           subjects.clear();
           historypoints.clear();
+          historysub.clear();
           sgpa = 0;
           selectedGrade = "";
           selectedCredit = "";
@@ -268,17 +331,18 @@ class _HomePageState extends State<HomePage> {
           _controller.clear();
         });
       },
+
       child: Container(
         alignment: Alignment.center,
-        height: height * 0.06,
-        width: width * 0.3,
+        height: height * 0.05,
+        width: width * 0.25,
         decoration: BoxDecoration(
           color: Colors.red[500],
           borderRadius: BorderRadius.circular(15),
         ),
         child: Text(
           name,
-          style: TextStyle(color: Colors.white, fontSize: width * 0.045),
+          style: TextStyle(color: Colors.white, fontSize: fontSize),
         ),
       ),
     );
@@ -298,7 +362,9 @@ class _HomePageState extends State<HomePage> {
     } else if (gradeVal == 0 || creditVal == 0) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text("Please select both grade and credit to calculate SGPA."),
+          content: Text(
+            "Please select both grade and credit to calculate SGPA.",
+          ),
           backgroundColor: Colors.red[300],
           elevation: 5,
           behavior: SnackBarBehavior.floating,
@@ -307,15 +373,20 @@ class _HomePageState extends State<HomePage> {
       );
     } else {
       subjects.add({"grade": gradeVal, "credit": creditVal});
+
+      // Calculate Sgpa
       int totalPoints = 0;
       int totalCredits = 0;
       for (var subject in subjects) {
         totalPoints += subject["grade"]! * subject["credit"]!;
         totalCredits += subject["credit"]!;
       }
+
       sgpa = totalPoints / totalCredits;
       historysub.add(_controller.text);
       historypoints.add(sgpa);
+
+      // Reset
       selectedGrade = "";
       selectedCredit = "";
       gradeVal = 0;
@@ -324,7 +395,7 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  void reCalculateSgpa() {
+  reCalculateSgpa() {
     int totalPoints = 0;
     int totalCredits = 0;
     for (var subject in subjects) {
